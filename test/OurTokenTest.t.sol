@@ -49,7 +49,7 @@ contract OurTokenTest is Test {
     }
 
     // Additional OurToken Tests
-    
+
     function testTokenName() public view {
         assertEq(ourToken.name(), "OurToken");
     }
@@ -71,10 +71,7 @@ contract OurTokenTest is Test {
         ourToken.transfer(alice, transferAmount);
 
         assertEq(ourToken.balanceOf(bob), initialBobBalance - transferAmount);
-        assertEq(
-            ourToken.balanceOf(alice),
-            initialAliceBalance + transferAmount
-        );
+        assertEq(ourToken.balanceOf(alice), initialAliceBalance + transferAmount);
     }
 
     function testApprovalUpdatesAllowance() public {
@@ -96,10 +93,7 @@ contract OurTokenTest is Test {
         vm.prank(alice);
         ourToken.transferFrom(bob, charlie, transferAmount);
 
-        assertEq(
-            ourToken.allowance(bob, alice),
-            approvalAmount - transferAmount
-        );
+        assertEq(ourToken.allowance(bob, alice), approvalAmount - transferAmount);
     }
 
     function testTransferFailsWithInsufficientBalance() public {
@@ -160,29 +154,28 @@ contract OurTokenTest is Test {
         assertEq(manualToken.balanceOf(alice), 0);
     }
 
-/**
- * explaination of mapping storage manipulation in tests 
- * Example with multiple variables:
- 
- contract Example {
-    uint256 public count;                        // Slot 0
-    mapping(address => uint256) public balances; // Slot 1  
-    string public name;                          // Slot 2
-}
-
-// To access balances[alice]: keccak256(abi.encode(alice, 1))
-//                                                         ↑
-//                                            slot number = 1
-
-In our case:
-
-s_balances is the first (and only) state variable in ManualToken
-So it gets assigned to storage slot 0
-That's why we use keccak256(abi.encode(bob, 0))
- * 
- * 
- */
-
+    /**
+     * explaination of mapping storage manipulation in tests
+     * Example with multiple variables:
+     *
+     *  contract Example {
+     * uint256 public count;                        // Slot 0
+     * mapping(address => uint256) public balances; // Slot 1
+     * string public name;                          // Slot 2
+     * }
+     *
+     * // To access balances[alice]: keccak256(abi.encode(alice, 1))
+     * //                                                         ↑
+     * //                                            slot number = 1
+     *
+     * In our case:
+     *
+     * s_balances is the first (and only) state variable in ManualToken
+     * So it gets assigned to storage slot 0
+     * That's why we use keccak256(abi.encode(bob, 0))
+     *
+     *
+     */
     function testManualTokenTransfer() public {
         // First we need to give someone tokens to transfer
         // Since ManualToken doesn't have a mint function, we'll use a different approach
@@ -191,7 +184,7 @@ That's why we use keccak256(abi.encode(bob, 0))
         // We'll directly set balance using storage manipulation for testing
         vm.store(
             address(manualToken),
-            keccak256(abi.encode(bob, 0)),     // 0 means the first slot in the mapping which is the first variable made in the ManualToken contract
+            keccak256(abi.encode(bob, 0)), // 0 means the first slot in the mapping which is the first variable made in the ManualToken contract
             bytes32(transferAmount)
         );
 
@@ -214,11 +207,7 @@ That's why we use keccak256(abi.encode(bob, 0))
         uint256 initialAmount = 100 ether;
 
         // Set initial balance for bob
-        vm.store(
-            address(manualToken),
-            keccak256(abi.encode(bob, 0)),
-            bytes32(initialAmount)
-        );
+        vm.store(address(manualToken), keccak256(abi.encode(bob, 0)), bytes32(initialAmount));
 
         uint256 transferAmount = 30 ether;
 
@@ -226,21 +215,14 @@ That's why we use keccak256(abi.encode(bob, 0))
         manualToken.transfer(alice, transferAmount);
 
         // Check that total balance is conserved
-        assertEq(
-            manualToken.balanceOf(bob) + manualToken.balanceOf(alice),
-            initialAmount
-        );
+        assertEq(manualToken.balanceOf(bob) + manualToken.balanceOf(alice), initialAmount);
     }
 
     function testManualTokenMultipleTransfers() public {
         uint256 initialAmount = 100 ether;
 
         // Set initial balance for bob
-        vm.store(
-            address(manualToken),
-            keccak256(abi.encode(bob, 0)),
-            bytes32(initialAmount)
-        );
+        vm.store(address(manualToken), keccak256(abi.encode(bob, 0)), bytes32(initialAmount));
 
         vm.prank(bob);
         manualToken.transfer(alice, 30 ether);

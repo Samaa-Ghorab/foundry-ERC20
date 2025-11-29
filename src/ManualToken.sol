@@ -2,7 +2,6 @@
 pragma solidity ^0.8.20;
 
 contract ManualToken {
-    
     mapping(address => uint256) private s_balances;
 
     function name() public pure returns (string memory) {
@@ -10,7 +9,7 @@ contract ManualToken {
     }
     //  string public name = "Manual Token";
 
-    function totalSupply() public view returns (uint256) {
+    function totalSupply() public pure returns (uint256) {
         return 100 ether;
     }
 
